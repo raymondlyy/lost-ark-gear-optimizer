@@ -5,21 +5,9 @@
 #include <vector>
 
 struct Item{
-    std::string slot;
-    std::string rarity;
-    int quality;
-    std::string stat1;
-    int stat1val;
-    std::string stat2; // if none put NONE
-    int stat2val;
-    std::string engraving1;
-    int engraving1val;
-    std::string engraving2;
-    int engraving2val;
-    std::string malus;
-    int malusval;
-    int gold;
-    int pheons;
+    std::string slot, rarity;
+    int quality, crit, swift, spec, dom, endurance, expertise, goldCost, pheonCost;
+    std::map<std::string, int> engravings;
 };
 
 struct Build{
