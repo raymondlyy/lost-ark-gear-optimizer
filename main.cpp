@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 struct Item{
     std::string slot, rarity;
@@ -15,9 +17,17 @@ struct Build{
     std::map<std::string, int> engravings;
 };
 
+struct BuildFunctor{
+    bool operator ()(const Build& l, const Build& r) const {
+        return l.goldCost < r.goldCost;
+    }
+};
+
 void printBuild(Build);
 void printItem(Item);
 void assignStat(std::string, int, Item&);
+void addItem(Build&, Item&);
+bool validBuild(Build&, Build&);
 
 int main(){
     std::fstream fin("dummydata.csv"); // testing csv input
@@ -156,9 +166,58 @@ int main(){
 
     // printBuild(target);
 
-    Build temp = Build();
-    for (Item neck : necks){
-        
+    int neckIndex = 0;
+    int earringFIndex = 0, earringSIndex = 1, ringFIndex = 0, ringSIndex = 1;
+    while (neckIndex < necks.size()){
+        Build tempBuild = {};
+        tempBuild.engravings = startingEngravings;
+
+        // build the item
+        // std::cout << neckIndex << "," << earringFIndex << "," << earringSIndex << "," << ringFIndex << "," << ringSIndex << "\n";
+
+        addItem(tempBuild, necks[neckIndex]);
+        addItem(tempBuild, earrings[earringFIndex]);
+        addItem(tempBuild, earrings[earringSIndex]);
+        addItem(tempBuild, rings[ringFIndex]);
+        addItem(tempBuild, rings[ringSIndex]);
+
+        builds.push_back(tempBuild);
+
+        // increment second ring index
+        ++ringSIndex;
+
+        // if the end of the ring vector is reached, increment the first ring index and reset the second
+        if (ringSIndex >= rings.size() - 1){
+            ++ringFIndex;
+            ringSIndex = ringFIndex + 1;
+        }
+        // if the end of the ring vector is reached, it's time to increment the earring indices
+        if (ringFIndex >= rings.size() - 1){
+            ++earringSIndex;
+
+            ringFIndex = 0;
+            ringSIndex = 1;
+            // if the end of the earring vector is reached, increment the second earring index and reset the second
+            if (earringSIndex >= earrings.size() - 1){
+                ++earringFIndex;
+                earringSIndex = earringFIndex + 1;
+            }
+        }
+
+        // if the end of the earring vector is fully reached, it's time to move onto the next neck object
+        if (earringFIndex >= earrings.size() - 1){
+            ++neckIndex;
+            earringFIndex = 0, earringSIndex = 1, ringFIndex = 0, ringSIndex = 1;
+        }
+    }
+    
+    std::sort(builds.begin(), builds.end(), BuildFunctor());
+
+    for (Build& b : builds){
+        if (validBuild(target, b)){
+            printBuild(b);
+            std::cout << "\n===========\n";
+        }
     }
     return 0;
 }
@@ -169,12 +228,14 @@ int main(){
  * @param b Struct that contains build information. 
  */
 void printBuild(Build b){
-    std::cout << "Crit: " << b.crit << "\n"
-              << "Swiftness: " << b.swift << "\n"
-              << "Specialization: " << b.spec << "\n"
-              << "Domination: " << b.dom << "\n"
-              << "Endurance: " << b.end << "\n"
-              << "Expertise: " << b.exp << "\n\n";
+    std::cout << "Gold cost: " << b.goldCost << "\nPheon cost: " << b.pheonCost << "\n\n";
+
+    if (b.crit) std::cout << "Crit: " << b.crit << "\n";
+    if (b.swift) std::cout << "Swiftness: " << b.swift << "\n";
+    if (b.spec) std::cout << "Specialization: " << b.spec << "\n";
+    if (b.dom) std::cout << "Domination: " << b.dom << "\n";
+    if (b.end) std::cout << "Endurance: " << b.end << "\n";
+    if (b.exp) std::cout << "Expertise: " << b.exp << "\n\n";
 
     for (auto& engraving: b.engravings){
         std::cout << engraving.first << ": +" << engraving.second << "\n";
@@ -232,6 +293,9 @@ void addItem(Build& b, Item& i){
     for (std::pair<std::string, int> engraving : i.engravings){
         b.engravings[engraving.first] += engraving.second;
     }
+
+    b.goldCost += i.goldCost;
+    b.pheonCost += i.pheonCost;
 }
 
 /**
@@ -243,6 +307,17 @@ void addItem(Build& b, Item& i){
  * @return false if current build doesn't meet the requirements
  */
 bool validBuild(Build& target, Build& current){
+    // check if stats reach target
     if (current.crit < target.crit || current.swift < target.swift || current.spec < target.spec || current.dom < target.dom || current.end < target.end || current.exp < target.exp) return false;
     
+    // check if engravings reach target
+    for (std::pair<std::string, int> engraving : target.engravings){
+        if (current.engravings[engraving.first] < engraving.second) return false;
+    }
+
+    // check no negative engravings
+    // for (std::pair<std::string, int> engraving : current.engravings){
+    //     if (engraving.first.find("Reduction") != std::string::npos && engraving.second >= 5) return false;
+    // }
+    return true;
 }
