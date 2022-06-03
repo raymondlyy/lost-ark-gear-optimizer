@@ -151,13 +151,15 @@ int main(){
     // preset some starting engravings. replace with user input later
     std::map<std::string, int> startingEngravings;
     startingEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
-    startingEngravings.insert(std::pair<std::string, int>("Adrenaline", 10));
+    startingEngravings.insert(std::pair<std::string, int>("Adrenaline", 6));
+    startingEngravings.insert(std::pair<std::string, int>("Grudge", 9));
 
     // preset a target build. replace with user input later
     std::map<std::string, int> targetEngravings;
     targetEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
     targetEngravings.insert(std::pair<std::string, int>("Adrenaline", 15));
     targetEngravings.insert(std::pair<std::string, int>("Remaining Energy", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Grudge", 15));
 
     Build target = Build();
     target.spec = 1000;
@@ -316,8 +318,8 @@ bool validBuild(Build& target, Build& current){
     }
 
     // check no negative engravings
-    // for (std::pair<std::string, int> engraving : current.engravings){
-    //     if (engraving.first.find("Reduction") != std::string::npos && engraving.second >= 5) return false;
-    // }
+    for (std::pair<std::string, int> engraving : current.engravings){
+        if (engraving.first.find("Reduction") != std::string::npos && engraving.second >= 5) return false;
+    }
     return true;
 }

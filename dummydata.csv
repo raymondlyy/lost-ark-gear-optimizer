@@ -3,9 +3,20 @@ Earring,Relic,50,Swiftness,250,None,0,Adrenaline,4,Lightning Fury,3,Atk. Power R
 Necklace,Legendary,88,Crit,424,Specialization,447,Adrenaline,2,Remaining Energy,3,Defense Reduction,3,2400,15
 Necklace,Legendary,68,Crit,408,Specialization,418,Adrenaline,2,Remaining Energy,3,Atk. Power Reduction,1,2200,15
 Necklace,Legendary,90,Crit,449,Specialization,428,Adrenaline,2,Remaining Energy,3,Move Speed Reduction,1,10000,15
+Necklace,Legendary,61,Crit,403,Specialization,402,Grudge,3,Remaining Energy,3,Atk. Power Reduction,3,8000,15
+Necklace,Legendary,83,Crit,449,Specialization,410,Grudge,3,Remaining Energy,3,Move Speed Reduction,2,14800,15
+Necklace,Legendary,79,Crit,450,Specialization,398,Grudge,3,Remaining Energy,3,Atk. Power Reduction,1,25000,15
 Earring,Legendary,58,Specialization,239,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,2,1200,15
 Earring,Legendary,66,Specialization,245,None,0,Adrenaline,3,Remaining Energy,3,Defense Reduction,2,1499,15
 Earring,Legendary,64,Specialization,243,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,3,1800,15
+Earring,Legendary,56,Specialization,237,None,0,Grudge,3,Remaining Energy,3,Atk. Power Reduction,1,800,15
+Earring,Legendary,38,Specialization,224,None,0,Grudge,3,Remaining Energy,3,Atk. Power Reduction,2,950,15
+Earring,Legendary,64,Specialization,243,None,0,Grudge,3,Remaining Energy,3,Defense Reduction,2,999,15
 Ring,Legendary,26,Specialization,143,None,0,Remaining Energy,3,Adrenaline,3,Move Speed Reduction,2,1900,15
 Ring,Legendary,76,Specialization,168,None,0,Adrenaline,3,Remaining Energy,3,Defense Reduction,3,1999,15
 Ring,Legendary,70,Specialization,165,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,1,2000,15
+Ring,Legendary,18,Specialization,139,None,0,Remaining Energy,3,Grudge,3,Atk. Speed Reduction,3,500,15
+Ring,Legendary,54,Specialization,157,None,0,Grudge,3,Remaining Energy,3,Atk. Speed Reduction,3,969,15
+Ring,Legendary,52,Specialization,156,None,0,Grudge,3,Remaining Energy,3,Move Speed Reduction,3,980,15
+Ring,Legendary,72,Specialization,166,None,0,Grudge,3,Remaining Energy,3,Atk. Power Reduction,2,1650,15
+Ring,Legendary,72,Specialization,166,None,0,Grudge,3,Remaining Energy,3,Defense Reduction,2,1449,15
