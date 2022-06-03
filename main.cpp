@@ -6,12 +6,12 @@
 
 struct Item{
     std::string slot, rarity;
-    int quality, crit, swift, spec, dom, endurance, expertise, goldCost, pheonCost;
+    int quality, crit, swift, spec, dom, end, exp, goldCost, pheonCost;
     std::map<std::string, int> engravings;
 };
 
 struct Build{
-    int crit, swift, spec, dom, endurance, expertise, goldCost, pheonCost;
+    int crit, swift, spec, dom, end, exp, goldCost, pheonCost;
     std::map<std::string, int> engravings;
 };
 
@@ -136,8 +136,30 @@ int main(){
         } else std::cout << "There was an error with an item. Check the data.\n";
     }
 
-    printItem(necks.back());
-    printItem(earrings.back());
+    std::cout << necks.size() + rings.size() + earrings.size() << " items added. Running algorithm...\n";
+
+    // preset some starting engravings. replace with user input later
+    std::map<std::string, int> startingEngravings;
+    startingEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
+    startingEngravings.insert(std::pair<std::string, int>("Adrenaline", 10));
+
+    // preset a target build. replace with user input later
+    std::map<std::string, int> targetEngravings;
+    targetEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Adrenaline", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Remaining Energy", 15));
+
+    Build target = Build();
+    target.spec = 1000;
+    target.crit = 410;
+    target.engravings = targetEngravings;
+
+    // printBuild(target);
+
+    Build temp = Build();
+    for (Item neck : necks){
+        
+    }
     return 0;
 }
 
@@ -151,8 +173,8 @@ void printBuild(Build b){
               << "Swiftness: " << b.swift << "\n"
               << "Specialization: " << b.spec << "\n"
               << "Domination: " << b.dom << "\n"
-              << "Endurance: " << b.endurance << "\n"
-              << "Expertise: " << b.expertise << "\n\n";
+              << "Endurance: " << b.end << "\n"
+              << "Expertise: " << b.exp << "\n\n";
 
     for (auto& engraving: b.engravings){
         std::cout << engraving.first << ": +" << engraving.second << "\n";
@@ -169,8 +191,8 @@ void printItem(Item i){
     if (i.swift) std::cout << "Swiftness: " << i.swift << "\n";
     if (i.spec) std::cout << "Specialization: " << i.spec << "\n";
     if (i.dom) std::cout << "Domination: " << i.dom << "\n";
-    if (i.endurance) std::cout << "Endurance: " << i.endurance << "\n";
-    if (i.expertise) std::cout << "Expertise: " << i.expertise << "\n\n";
+    if (i.end) std::cout << "Endurance: " << i.end << "\n";
+    if (i.exp) std::cout << "Expertise: " << i.exp << "\n\n";
 
     for (auto& engraving: i.engravings){
         std::cout << engraving.first << ": +" << engraving.second << "\n";
@@ -178,8 +200,7 @@ void printItem(Item i){
 }
 
 /**
- * @brief 
- * Method that assigns a given stat value to an item
+ * @brief Method that assigns a given stat value to an item
  * 
  * @param stat The stat to be assigned
  * @param value The value of the stat to assign
@@ -190,6 +211,38 @@ void assignStat(std::string stat, int value, Item& item){
     else if (stat == "Swiftness") item.swift = value;
     else if (stat == "Specialization") item.spec = value;
     else if (stat == "Domination") item.dom = value;
-    else if (stat == "Endurance") item.endurance = value;
-    else if (stat == "Expertise") item.expertise = value;
+    else if (stat == "Endurance") item.end = value;
+    else if (stat == "Expertise") item.exp = value;
+}
+
+/**
+ * @brief Adds a specified item to a build.
+ * 
+ * @param b The build to be modified.
+ * @param i The new item to be added.
+ */
+void addItem(Build& b, Item& i){
+    b.crit += i.crit;
+    b.swift += i.swift;
+    b.spec += i.spec;
+    b.dom += i.dom;
+    b.end += i.end;
+    b.exp += i.exp;
+
+    for (std::pair<std::string, int> engraving : i.engravings){
+        b.engravings[engraving.first] += engraving.second;
+    }
+}
+
+/**
+ * @brief Compares two builds to see if the current build meets the target requirements.
+ * 
+ * @param target The target build.
+ * @param current The current build to be tested.
+ * @return true if current build meets the requirements
+ * @return false if current build doesn't meet the requirements
+ */
+bool validBuild(Build& target, Build& current){
+    if (current.crit < target.crit || current.swift < target.swift || current.spec < target.spec || current.dom < target.dom || current.end < target.end || current.exp < target.exp) return false;
+    
 }

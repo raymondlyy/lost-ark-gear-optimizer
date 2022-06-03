@@ -1,2 +1,11 @@
-Necklace,Relic,80,Crit,400,Specialization,400,Grudge,5,Cursed Doll,3,Movement Speed Reduction,2,500,15
-Earring,Relic,50,Swiftness,250,None,0,Adrenaline,4,Lightning Fury,3,Attack Power Reduction,3,200,15
+Necklace,Relic,80,Crit,400,Specialization,400,Grudge,5,Cursed Doll,3,Move Speed Reduction,2,500,15
+Earring,Relic,50,Swiftness,250,None,0,Adrenaline,4,Lightning Fury,3,Atk. Power Reduction,3,200,15
+Necklace,Legendary,88,Crit,424,Specialization,447,Adrenaline,2,Remaining Energy,3,Defense Reduction,3,2400,15
+Necklace,Legendary,68,Crit,408,Specialization,418,Adrenaline,2,Remaining Energy,3,Atk. Power Reduction,1,2200,15
+Necklace,Legendary,90,Crit,449,Specialization,428,Adrenaline,2,Remaining Energy,3,Move Speed Reduction,1,10000,15
+Earring,Legendary,58,Specialization,239,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,2,1200,15
+Earring,Legendary,66,Specialization,245,None,0,Adrenaline,3,Remaining Energy,3,Defense Reduction,2,1499,15
+Earring,Legendary,64,Specialization,243,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,3,1800,15
+Ring,Legendary,26,Specialization,143,None,0,Remaining Energy,3,Adrenaline,3,Move Speed Reduction,2,1900,15
+Ring,Legendary,76,Specialization,168,None,0,Adrenaline,3,Remaining Energy,3,Defense Reduction,3,1999,15
+Ring,Legendary,70,Specialization,165,None,0,Adrenaline,3,Remaining Energy,3,Atk. Power Reduction,1,2000,15
