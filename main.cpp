@@ -7,7 +7,7 @@
 #include <iterator>
 
 struct Item{
-    std::string slot, rarity;
+    std::string name, slot, rarity;
     int quality, crit, swift, spec, dom, end, exp, goldCost, pheonCost;
     std::map<std::string, int> engravings;
 };
@@ -15,6 +15,7 @@ struct Item{
 struct Build{
     int crit, swift, spec, dom, end, exp, goldCost, pheonCost;
     std::map<std::string, int> engravings;
+    std::vector<Item> items;
 };
 
 struct BuildFunctor{
@@ -40,11 +41,11 @@ int main(){
     while (fin.good()){
         // read the item type
         std::getline(fin, temp, ',');
-        // std::cout << "[" << temp << "]";
 
         // create a new item object and populate its data fields
-        if (temp == "Necklace"){
+        if (temp.find("Necklace") != std::string::npos){
             necks.push_back(Item());
+            necks.back().name = temp;
             // rarity
             std::getline(fin, temp, ',');
             // quality
@@ -77,8 +78,9 @@ int main(){
             necks.back().goldCost = std::stoi(temp);
             std::getline(fin, temp, '\n');
             necks.back().pheonCost = std::stoi(temp);
-        } else if (temp == "Earring"){
+        } else if (temp.find("Earrings") != std::string::npos){
             earrings.push_back(Item());
+            earrings.back().name = temp;
             // rarity
             std::getline(fin, temp, ',');
             // quality
@@ -110,8 +112,9 @@ int main(){
             earrings.back().goldCost = std::stoi(temp);
             std::getline(fin, temp, '\n');
             earrings.back().pheonCost = std::stoi(temp);
-        } else if (temp == "Ring"){
+        } else if (temp.find("Ring") != std::string::npos){
             rings.push_back(Item());
+            rings.back().name = temp;
             // rarity
             std::getline(fin, temp, ',');
             // quality
@@ -152,14 +155,16 @@ int main(){
     std::map<std::string, int> startingEngravings;
     startingEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
     startingEngravings.insert(std::pair<std::string, int>("Adrenaline", 6));
-    startingEngravings.insert(std::pair<std::string, int>("Grudge", 9));
+    startingEngravings.insert(std::pair<std::string, int>("Cursed Doll", 15));
+    startingEngravings.insert(std::pair<std::string, int>("Atk. Speed Reduction", 2));
 
     // preset a target build. replace with user input later
     std::map<std::string, int> targetEngravings;
     targetEngravings.insert(std::pair<std::string, int>("Ambush Master", 15));
-    targetEngravings.insert(std::pair<std::string, int>("Adrenaline", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Adrenaline", 5));
     targetEngravings.insert(std::pair<std::string, int>("Remaining Energy", 15));
-    targetEngravings.insert(std::pair<std::string, int>("Grudge", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Cursed Doll", 15));
+    targetEngravings.insert(std::pair<std::string, int>("Keen Blunt Weapon", 15));
 
     Build target = Build();
     target.spec = 1000;
@@ -183,7 +188,7 @@ int main(){
         addItem(tempBuild, rings[ringFIndex]);
         addItem(tempBuild, rings[ringSIndex]);
 
-        builds.push_back(tempBuild);
+        if (validBuild(target, tempBuild)) builds.push_back(tempBuild);
 
         // increment second ring index
         ++ringSIndex;
@@ -215,12 +220,13 @@ int main(){
     
     std::sort(builds.begin(), builds.end(), BuildFunctor());
 
-    for (Build& b : builds){
-        if (validBuild(target, b)){
-            printBuild(b);
-            std::cout << "\n===========\n";
-        }
-    }
+    // for (Build& b : builds){
+    //     if (validBuild(target, b) && b.goldCost < 20000){
+    //         printBuild(b);
+    //         std::cout << "\n===========\n";
+    //     }
+    // }
+    printBuild(builds.front());
     return 0;
 }
 
@@ -239,8 +245,25 @@ void printBuild(Build b){
     if (b.end) std::cout << "Endurance: " << b.end << "\n";
     if (b.exp) std::cout << "Expertise: " << b.exp << "\n\n";
 
+    // print non-malus first
     for (auto& engraving: b.engravings){
-        std::cout << engraving.first << ": +" << engraving.second << "\n";
+        if (engraving.first.find("Reduction") == std::string::npos){
+            std::cout << engraving.first << ": +" << engraving.second << "\n";
+        }
+    }
+
+    // second pass to print malus
+    for (auto& engraving: b.engravings){
+        if (engraving.first.find("Reduction") != std::string::npos){
+            std::cout << engraving.first << ": +" << engraving.second << "\n";
+        }
+    }
+    
+    // now print all the build's items
+    std::cout << "===========\n";
+    for (auto inv : b.items){
+        printItem(inv);
+        std::cout << "--\n";
     }
 }
 
@@ -250,15 +273,27 @@ void printBuild(Build b){
  * @param i Struct that contains item information.
  */
 void printItem(Item i){
-    if (i.crit) std::cout << "Crit: " << i.crit << "\n";
-    if (i.swift) std::cout << "Swiftness: " << i.swift << "\n";
-    if (i.spec) std::cout << "Specialization: " << i.spec << "\n";
-    if (i.dom) std::cout << "Domination: " << i.dom << "\n";
-    if (i.end) std::cout << "Endurance: " << i.end << "\n";
-    if (i.exp) std::cout << "Expertise: " << i.exp << "\n\n";
+    std::cout << i.name << ": " << i.quality << " quality, " << i.goldCost << " gold\n";
+    if (i.crit) std::cout << "Crit: " << i.crit << " ";
+    if (i.swift) std::cout << "Swift: " << i.swift << " ";
+    if (i.spec) std::cout << "Spec: " << i.spec << " ";
+    if (i.dom) std::cout << "Dom: " << i.dom << " ";
+    if (i.end) std::cout << "End: " << i.end << " ";
+    if (i.exp) std::cout << "Exp: " << i.exp << " ";
+    std::cout << "\n";
 
+    // print non-malus first
     for (auto& engraving: i.engravings){
-        std::cout << engraving.first << ": +" << engraving.second << "\n";
+        if (engraving.first.find("Reduction") == std::string::npos){
+            std::cout << engraving.first << ": +" << engraving.second << "\n";
+        }
+    }
+
+    // second pass to print malus
+    for (auto& engraving: i.engravings){
+        if (engraving.first.find("Reduction") != std::string::npos){
+            std::cout << engraving.first << ": +" << engraving.second << "\n";
+        }
     }
 }
 
@@ -298,6 +333,8 @@ void addItem(Build& b, Item& i){
 
     b.goldCost += i.goldCost;
     b.pheonCost += i.pheonCost;
+
+    b.items.push_back(i);
 }
 
 /**
