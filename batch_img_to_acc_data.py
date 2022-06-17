@@ -4,6 +4,7 @@ import cv2
 import pytesseract
 import numpy as np
 import glob
+import math
 #endregion
 
 #Variables
@@ -11,6 +12,7 @@ import glob
 
 #pytesseract config setups
 number_only_config = r'-c tessedit_char_whitelist=0123456789 --oem 1 --psm 6'
+quality_config = r'-c tessedit_char_whitelist=0123456789 --oem 1 --psm 7'
 price_config = r'-c tessedit_char_whitelist=0123456789 --oem 1 --psm 7'
 number_decimals_config = r'-c tessedit_char_whitelist=0123456789. --oem 1 --psm 6'
 master_flex_config = r'--oem 1 --psm 1'
@@ -30,7 +32,7 @@ hitem_name2 = 904
 hquality1 = 988
 hquality2 = 1147
 hprice1 = 1465
-hprice2 = 1632
+hprice2 = 1601
 #endregion
 
 #Sub image coords
@@ -46,7 +48,7 @@ hright = 1027
 master_all_rescale = 120
 sub_all_rescale = 140
 item_name_rescale = 100
-quality_rescale = master_all_rescale
+quality_rescale = 110
 price_rescale = master_all_rescale
 #endregion
 
@@ -94,9 +96,11 @@ def split_image(image):
     himagelist = []
     vbound1 = vstart_top + i * vheight
     vbound2 = vstart_bot + i * vheight
+    vqualityadd = 28 #Cut out quality bar to only have quality number
+    vitemnameminus = 24 #Cut number of times tradable to only have item name
 
-    himagelist.append(image[vbound1:vbound2, hitem_name1:hitem_name2])
-    himagelist.append(image[vbound1:vbound2, hquality1:hquality2])
+    himagelist.append(image[vbound1:vbound2-vitemnameminus, hitem_name1:hitem_name2])
+    himagelist.append(image[(vbound1+vqualityadd):vbound2, hquality1:hquality2])
     himagelist.append(image[vbound1:vbound2, hprice1:hprice2])
 
     vimagelist.append(himagelist)
@@ -118,21 +122,27 @@ def cut_image(img):
 #Output data to be used in sub-image csv lines + return number of sub-images
 def read_image_line(himagelist):
   item_name = pytesseract.image_to_string(rescale(himagelist[0], item_name_rescale), config=master_flex_config).replace("\n", "").split("[")[0]
-  quality = pytesseract.image_to_string(rescale(himagelist[1], quality_rescale), config=number_only_config).replace("\n", "")
+  quality = pytesseract.image_to_string(rescale(himagelist[1], quality_rescale), config=quality_config).replace("\n", "")
   price = pytesseract.image_to_string(rescale(himagelist[2], price_rescale), config=price_config).replace("\n", "")
 
+  """
+  #image display for testing
+  cv2.imshow("grayscalecropped ver", himagelist[0])
+  cv2.waitKey(0)
+  cv2.destroyAllWindows()
+  """
   #If item_name or quality are empty
   #There should be no row, so return None for no row
-  if(item_name == "" or quality == ""):
+  if(item_name == ""): #or quality == ""):
     return None
 
   #Check for price empty (this means no buy now price)
   #(item_name/quality aren't empty)
   if(price == ""):
-    return [item_name, quality, None]
+    return [item_name, None]
 
   #item_name, quality, price
-  return [item_name, quality, price]
+  return [item_name, price]
 
 #Sub-image to text line function
 #Take in array of images of a split image, output csv text line
@@ -153,49 +163,93 @@ def read_image(img):
 
 #endregion
 
+#Other functions
+#region
 
+#Takes stat values
+#Returns quality
+def calc_quality(stat1, stat2):
+  stat = int(stat1) + int(stat2)
+
+  if 160 <= stat <= 200:
+      minstat = 160
+      statrange = 40
+  elif 240 <= stat <= 300:
+      minstat = 240
+      statrange = 60
+  else: #800 <= stat <= 1000
+      minstat = 800
+      statrange = 200
+
+  return str(math.floor(100*((stat - minstat) / statrange)))
+
+#endregion
 
 #Read in all images in a folder
-glob = glob.glob(r"C:/Users/Glyph/Documents/program/ocr_lostark/test_images/batch_acc_test/*.jpg")
-print(len(glob))
+#glob = glob.glob(r"C:/Users/Glyph/Documents/program/ocr_lostark/test_images/batch_acc_test/*.jpg")
+glob = glob.glob(r"C:/Users/Glyph/Documents/program/ocr_lostark/test_images/raymond_test/*.jpg")
+#print(len(glob))
 
 #Guaranteed to always start with a master image
 i = 0
+outfile = open("batch_output.csv", "a")
 while i < len(glob):
   print(i)
   master_acc_data = []
   sub_acc_indeces = []
 
   #Read in master image
-  master_img = get_threshold(cv2.imread(glob[i], 0))
+  #master_img = get_threshold(cv2.imread(glob[i], 0))
+  master_img = get_threshold(get_grayscale(get_contrasted(cv2.imread(glob[i]))))
 
+  """
   #image display for testing
   cv2.imshow("grayscalecropped ver", master_img)
   cv2.waitKey(0)
   cv2.destroyAllWindows()
+  """
 
   split_master_img = split_image(master_img)
   #Get line count, store acc data
   for line in split_master_img:
     img_line_data = read_image_line(line)
-    print(img_line_data)
+    #print(img_line_data)
 
     if(img_line_data is not None): #If the line is None, skip it by not incrementing i
       i+=1 #Update index to index of sub-image for tracking in sub_acc_indeces
-      if(img_line_data[2] is not None): #Only add to sub_acc_indeces if 'buy now price' isn't None
+      if(img_line_data[1] is not None): #Only add to sub_acc_indeces if 'buy now price' isn't None
         master_acc_data.append(img_line_data)
         sub_acc_indeces.append(i)
 
   i+=1
 
-  print(len(sub_acc_indeces))
+  #print(len(sub_acc_indeces))
+  #Read in sub images
   j = 0
   for index in sub_acc_indeces:
     acc_img = cut_image(get_grayscale(get_contrasted(cv2.imread(glob[index]))))
     acc_data = read_image(acc_img)
-    print(acc_data, master_acc_data[j])
+
+    #print(acc_data, master_acc_data[j])
+    stat1 = acc_data[0].split("+")
+    if(acc_data[1] != "Random Engraving Effect"):
+      stat2 = acc_data[1].split("+")
+    else:
+      stat2 = ["None", "0"]
+    stat1_val = stat1[1].replace(".", "").replace(",", "")
+    stat2_val = stat2[1].replace(".", "").replace(",", "")
+    engrave1 = acc_data[2].split("+")
+    engrave2 = acc_data[3].split("+")
+    engrave3 = acc_data[4].split("+")
+    
+    outfile.write(master_acc_data[j][0] + "," + "Relic" + "," + calc_quality(stat1_val, stat2_val) + ","
+          + stat1[0].strip() + "," + stat1_val + ","
+          + stat2[0].strip() + "," + stat2_val + ","
+          + engrave1[0].split("]")[0].replace("[", "") + "," + engrave1[1].replace(".", "") + ","
+          + engrave2[0].split("]")[0].replace("[", "") + "," + engrave2[1].replace(".", "") + ","
+          + engrave3[0].split("]")[0].replace("[", "") + "," + engrave3[1].replace(".", "") + ","
+          + master_acc_data[j][1] + "," + "25"
+          + "\n")
     j+=1
 
-    #Read in sub-images
-
-    
+outfile.close()
