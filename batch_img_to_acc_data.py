@@ -186,8 +186,9 @@ def calc_quality(stat1, stat2):
 #endregion
 
 #Read in all images in a folder
-#glob = glob.glob(r"C:/Users/Glyph/Documents/program/ocr_lostark/test_images/batch_acc_test/*.jpg")
-glob = glob.glob(r"C:/Users/Glyph/Documents/program/ocr_lostark/test_images/raymond_test/*.jpg")
+#glob = glob.glob(r"test_images/batch_acc_test/*.jpg")
+glob = glob.glob(r"test_images/raymond_test/*.jpg")
+#glob = glob.glob(r"test_images/punctuation_test/*.jpg")
 #print(len(glob))
 
 #Guaranteed to always start with a master image
@@ -230,7 +231,7 @@ while i < len(glob):
     acc_img = cut_image(get_grayscale(get_contrasted(cv2.imread(glob[index]))))
     acc_data = read_image(acc_img)
 
-    #print(acc_data, master_acc_data[j])
+    print(acc_data, master_acc_data[j])
     stat1 = acc_data[0].split("+")
     if(acc_data[1] != "Random Engraving Effect"):
       stat2 = acc_data[1].split("+")
@@ -238,9 +239,9 @@ while i < len(glob):
       stat2 = ["None", "0"]
     stat1_val = stat1[1].replace(".", "").replace(",", "")
     stat2_val = stat2[1].replace(".", "").replace(",", "")
-    engrave1 = acc_data[2].split("+")
-    engrave2 = acc_data[3].split("+")
-    engrave3 = acc_data[4].split("+")
+    engrave1 = acc_data[2].replace(".", "").replace(",", "").split("+")
+    engrave2 = acc_data[3].replace(".", "").replace(",", "").split("+")
+    engrave3 = acc_data[4].replace(".", "").replace(",", "").split("+")
     
     outfile.write(master_acc_data[j][0] + "," + "Relic" + "," + calc_quality(stat1_val, stat2_val) + ","
           + stat1[0].strip() + "," + stat1_val + ","
